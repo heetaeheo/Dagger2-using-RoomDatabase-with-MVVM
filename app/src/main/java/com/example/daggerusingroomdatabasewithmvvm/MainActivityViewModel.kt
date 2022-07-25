@@ -2,6 +2,7 @@ package com.example.daggerusingroomdatabasewithmvvm
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.daggerusingroomdatabasewithmvvm.database.UserDao
 import com.example.daggerusingroomdatabasewithmvvm.database.UserEntity
@@ -12,22 +13,22 @@ class MainActivityViewModel(application: Application): AndroidViewModel(applicat
     @Inject
     lateinit var userDao: UserDao
 
-    lateinit var allUserList: MutableLiveData<List<UserEntity>>
+    private val _allUserList: MutableLiveData<List<UserEntity>> = MutableLiveData()
+    val allUserList : LiveData<List<UserEntity>> get() = _allUserList
 
     init {
         (application as MyApp).getAppComponent().inject(this)
-        allUserList = MutableLiveData()
         getAllRecords()
     }
 
 
-    fun getRecordsObserver(): MutableLiveData<List<UserEntity>> {
+    fun getRecordsObserver(): LiveData<List<UserEntity>> {
         return allUserList
     }
 
     fun getAllRecords() {
         val list = userDao.getAllRecordsFromDB()
-        allUserList.postValue(list)
+        _allUserList.postValue(list)
     }
 
     fun insertRecord(userEntity: UserEntity) {
