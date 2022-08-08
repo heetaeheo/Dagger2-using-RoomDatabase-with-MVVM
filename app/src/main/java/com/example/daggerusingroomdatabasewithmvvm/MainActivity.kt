@@ -1,44 +1,47 @@
 package com.example.daggerusingroomdatabasewithmvvm
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.lifecycle.Observer
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.daggerusingroomdatabasewithmvvm.database.UserEntity
 import com.example.daggerusingroomdatabasewithmvvm.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+    private val component get() = (application as MyApp).appComponent
 
-    private lateinit var binding : ActivityMainBinding
-    lateinit var viewModel : MainActivityViewModel
+    private lateinit var binding: ActivityMainBinding
+
+    private val viewModel by lazy {
+        ViewModelProvider(
+            this,
+            component.provideViewModelFactory()
+        )[MainActivityViewModel::class.java]
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-        binding.savebtn.setOnClickListener {
-           val userEntity =  UserEntity(name = binding.enterEdit.text.toString())
-
-            viewModel.insertRecord(userEntity)
-            binding.resultText.setText("")
-
-        }
+        binding.savebtn.setOnClickListener { onSaveButtonClick() }
 
         initViewModel()
     }
 
-    private fun initViewModel(){
+    private fun onSaveButtonClick() {
+        val userEntity = UserEntity(name = binding.enterEdit.text.toString())
 
-        viewModel =  ViewModelProvider(this).get(MainActivityViewModel::class.java)
-        viewModel.getRecordsObserver().observe(this, object : Observer<List<UserEntity>>{
-            override fun onChanged(t: List<UserEntity>?) {
-                binding.resultText.setText("")
-               t?.forEach {
-                   binding.resultText.append(it.name + "\n")
-               }
+        viewModel.insertRecord(userEntity)
+        binding.resultText.text = ""
+    }
+
+
+    private fun initViewModel() {
+        viewModel.allUserList.observe(this) { user ->
+            binding.resultText.text = ""
+            user?.forEach {
+                binding.resultText.append(it.name + "\n")
             }
-        })
+        }
     }
 }
