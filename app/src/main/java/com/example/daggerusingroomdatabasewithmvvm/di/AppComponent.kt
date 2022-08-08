@@ -7,6 +7,5 @@ import javax.inject.Singleton
 @Singleton
 @Component(modules = [AppModule::class])
 interface AppComponent {
-
-    fun inject(mainActivityViewModel: MainActivityViewModel)
+    fun provideViewModelFactory(): MainActivityViewModel.Factory
 }

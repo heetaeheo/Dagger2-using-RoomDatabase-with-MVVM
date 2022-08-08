@@ -1,7 +1,7 @@
 package com.example.daggerusingroomdatabasewithmvvm.di
 
 import android.app.Application
-import android.content.Context
+import androidx.room.Room
 import com.example.daggerusingroomdatabasewithmvvm.database.AppDatabase
 import com.example.daggerusingroomdatabasewithmvvm.database.UserDao
 import dagger.Module
@@ -9,23 +9,22 @@ import dagger.Provides
 import javax.inject.Singleton
 
 @Module
-class AppModule(val application: Application) {
+class AppModule(private val application: Application) {
 
     @Singleton
     @Provides
-    fun getUserDao(appDatabase: AppDatabase) : UserDao{
+    fun getUserDao(appDatabase: AppDatabase): UserDao {
         return appDatabase.getUserDao()
     }
 
     @Singleton
     @Provides
-    fun getRoomDbInstance() : AppDatabase{
-        return AppDatabase.getAppDatabaseInstance(provideAppContext())
+    fun getRoomDbInstance(application: Application): AppDatabase {
+        return Room
+            .databaseBuilder(application, AppDatabase::class.java, AppDatabase.DB_NAME)
+            .build()
     }
 
-    @Singleton
     @Provides
-    fun provideAppContext() : Context{
-        return application.applicationContext
-    }
+    fun provideApplication() = application
 }
